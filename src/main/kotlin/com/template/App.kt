@@ -99,7 +99,7 @@ class AgreePartnership(val otherParty: Party) : FlowLogic<SignedTransaction>() {
 class ProposeProject(val name: String, val partner: Party): FlowLogic<SignedTransaction>() {
     companion object {
         object PROPOSING : ProgressTracker.Step("Proposing project") {
-            override fun childProgressTracker() = UpdateBilateralAgreement.tracker()
+            override fun childProgressTracker() = UpdateBilateralAgreementFlow.tracker()
         }
 
         fun tracker() = ProgressTracker(PROPOSING)
@@ -115,7 +115,7 @@ class ProposeProject(val name: String, val partner: Party): FlowLogic<SignedTran
         } ?: throw FlowException("${setOf(me, partner)} are not yet partners!")
         val newState = oldState.state.data.doProject(name)
         progressTracker.currentStep = PROPOSING
-        return subFlow(UpdateBilateralAgreement(oldState, newState, PROPOSING.childProgressTracker()))
+        return subFlow(UpdateBilateralAgreementFlow(oldState, newState, PROPOSING.childProgressTracker()))
     }
 }
 
