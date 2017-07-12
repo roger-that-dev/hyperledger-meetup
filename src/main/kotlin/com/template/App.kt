@@ -1,8 +1,11 @@
 package com.template
 
 import co.paralleluniverse.fibers.Suspendable
-import net.corda.core.contracts.*
+import net.corda.core.contracts.Contract
+import net.corda.core.contracts.ContractState
 import net.corda.core.contracts.Requirements.using
+import net.corda.core.contracts.TransactionForContract
+import net.corda.core.contracts.requireThat
 import net.corda.core.crypto.SecureHash
 import net.corda.core.flows.*
 import net.corda.core.identity.AbstractParty
@@ -11,6 +14,7 @@ import net.corda.core.node.services.queryBy
 import net.corda.core.transactions.SignedTransaction
 import net.corda.core.utilities.ProgressTracker
 
+//Contract.
 class PartnershipContract: Contract {
     override val legalContractReference: SecureHash = SecureHash.zeroHash
     override fun verify(tx: TransactionForContract) {
@@ -40,12 +44,16 @@ class PartnershipContract: Contract {
     }
 }
 
+
+//State.
 data class PartnershipAgreement(val partners: Set<Party>, val projects: List<String>): ContractState {
     override val contract: Contract get() = PartnershipContract()
     override val participants: List<AbstractParty> get() = partners.toList()
     fun doProject(projectName: String) = copy(projects = projects + projectName)
 }
 
+
+// Create flow.
 @InitiatingFlow
 @StartableByRPC
 class ProposePartnership(val partner: Party): FlowLogic<SignedTransaction>() {
@@ -69,7 +77,7 @@ class ProposePartnership(val partner: Party): FlowLogic<SignedTransaction>() {
 }
 
 @InitiatedBy(ProposePartnership::class)
-class ApprovePartnership(val otherParty: Party): FlowLogic<SignedTransaction>() {
+class AgreePartnership(val otherParty: Party) : FlowLogic<SignedTransaction>() {
     override val progressTracker: ProgressTracker = ProgressTracker()
 
     @Suspendable
@@ -84,6 +92,8 @@ class ApprovePartnership(val otherParty: Party): FlowLogic<SignedTransaction>() 
     }
 }
 
+
+// Update flow.
 @InitiatingFlow
 @StartableByRPC
 class ProposeProject(val name: String, val partner: Party): FlowLogic<SignedTransaction>() {
