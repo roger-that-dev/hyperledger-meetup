@@ -52,9 +52,9 @@ class CreateBilateralAgreementFlow(val state: ContractState,
 /**
  * Update a generic bilateral agreement.
  */
-class UpdateBilateralAgreement<out T : ContractState>(val old: StateAndRef<T>,
-                                                      val new: ContractState,
-                                                      override val progressTracker: ProgressTracker = tracker()): FlowLogic<SignedTransaction>() {
+class UpdateBilateralAgreementFlow<out T : ContractState>(val old: StateAndRef<T>,
+                                                          val new: ContractState,
+                                                          override val progressTracker: ProgressTracker = tracker()): FlowLogic<SignedTransaction>() {
     companion object {
         object CREATING : ProgressTracker.Step("Creating transaction")
         object SIGNING : ProgressTracker.Step("Signing transaction")
